@@ -1,3 +1,6 @@
-https://google.com
-http://login-bank-secure.com
-http://192.168.1.10/verify
+
+https://www.google.com
+http://login-bank-update.com
+http://192.168.1.10/login
+http://bit.ly/secure-bank-login
+https://account-update-amazon.security-check.com

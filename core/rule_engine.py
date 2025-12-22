@@ -1,5 +1,24 @@
 import re
+from urllib.parse import urlparse
 from core.feature_extractor import extract_features
+
+
+SUSPICIOUS_KEYWORDS = [
+    "login", "verify", "bank", "secure",
+    "update", "account", "signin", "confirm"
+]
+
+URL_SHORTENERS = ["bit.ly", "tinyurl", "t.co", "goo.gl"]
+
+def extract_domain(url):
+    try:
+        return urlparse(url).netloc.lower()
+    except:
+        return ""
+
+def is_shortened_url(domain):
+    return any(short in domain for short in URL_SHORTENERS)
+
 
 def analyze_url(url):
     features = extract_features(url)
@@ -12,7 +31,7 @@ def analyze_url(url):
 
     if features["has_ip"]:
         score += 3
-        reasons.append("Uses IP address")
+        reasons.append("Uses IP address instead of domain")
 
     if not features["has_https"]:
         score += 1
@@ -22,10 +41,16 @@ def analyze_url(url):
         score += 1
         reasons.append("Too many subdomains")
 
-    suspicious_words = ["login", "verify", "bank", "secure", "update"]
-    for word in suspicious_words:
+    for word in SUSPICIOUS_KEYWORDS:
         if word in url.lower():
             score += 2
-            reasons.append(f"Suspicious keyword: {word}")
+            reasons.append(f"Suspicious keyword detected: {word}")
 
+    domain = extract_domain(url)
+    if is_shortened_url(domain):
+        score += 2
+        reasons.append("Shortened URL detected")
+    if "@" in url:
+        score += 2
+        reasons.append("URL contains '@' symbol")
     return score, reasons

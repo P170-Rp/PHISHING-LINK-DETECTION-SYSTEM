@@ -12,6 +12,9 @@ from database.db_manager import save_scan
 
 from core.email_content_input import get_email_content
 
+from core.grammar_rules import analyze_grammar
+
+
 
 def main():
     url = get_url()
@@ -21,11 +24,11 @@ def main():
 
     
     sender_score, sender_reasons = analyze_sender(sender_email, email_content)
+    grammar_score, grammar_reasons = analyze_grammar(email_content)
 
 
-    total_score = url_score + sender_score
-
-    reasons = url_reasons + sender_reasons
+    total_score = url_score + sender_score + grammar_score
+    reasons = url_reasons + sender_reasons + grammar_reasons
 
 
     result = classify(total_score)

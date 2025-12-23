@@ -49,5 +49,12 @@ def analyze_sender(sender_email, email_content=""):
         if word in content:
             score += 2
             reasons.append(f"Urgency / threat keyword detected: '{word}'")
-
     return score, reasons
+    
+def is_external_sender(sender_email):
+    return not sender_email.lower().endswith(
+        ("@gmail.com", "@yahoo.com", "@outlook.com")
+    )
+
+
+    

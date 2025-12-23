@@ -7,3 +7,9 @@ def extract_features(url):
         "has_ip": bool(re.search(r'\d+\.\d+\.\d+\.\d+', url)),
         "dot_count": url.count('.')
     }
+
+def extract_sender_features(sender_email):
+    domain = sender_email.split("@")[-1].lower()
+    return {
+        "sender_domain": domain
+    }

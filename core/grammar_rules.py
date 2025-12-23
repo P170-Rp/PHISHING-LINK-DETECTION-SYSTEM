@@ -1,6 +1,5 @@
 import re
 
-# Common spelling mistakes seen in phishing
 COMMON_MISTAKES = [
     "verifiy", "updte", "acount", "securty",
     "immediatly", "suport", "congratulation",

@@ -24,6 +24,10 @@ def analyze_url(url):
     features = extract_features(url)
     score = 0
     reasons = []
+    
+    if not re.match(r"^https?://", url):
+        score += 2
+        reasons.append("Invalid or malformed URL format")
 
     if features["length"] > 75:
         score += 2

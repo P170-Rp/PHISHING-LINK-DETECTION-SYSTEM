@@ -1,4 +1,7 @@
 import sqlite3
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "phishing.db")
 
 def save_scan(sender_email , url, result, score, reasons):
     conn = sqlite3.connect("database/phishing.db")

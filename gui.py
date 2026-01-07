@@ -1,45 +1,160 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 from main import scan_phishing
 
-def scan():
-    url = url_entry.get()
-    sender = sender_entry.get()
-    message = message_text.get("1.0", tk.END)
-    attachment = attachment_entry.get()
 
-    result, score, reasons = scan_phishing(url, sender, message, attachment)
+class PhishingGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Phishing Link Detection System v1.0")
+        self.root.geometry("1000x620")
+        self.root.resizable(False, False)
+        self.root.configure(bg="#f4f6f9")
 
-    output.delete("1.0", tk.END)
-    output.insert(tk.END, f"Result: {result}\n")
-    output.insert(tk.END, f"Score: {score}\n\nReasons:\n")
+#Left PANEL
+        left = tk.Frame(root, bg="#0f172a", width=260)
+        left.pack(side="left", fill="y")
 
-    for r in reasons:
-        output.insert(tk.END, f"- {r}\n")
+        tk.Label(
+            left,
+            text="    🛡️\nPHISHING\nDETECTION",
+            fg="white",
+            bg="#0f172a",
+            font=("Segoe UI", 18, "bold"),
+            justify="center"
+        ).pack(pady=40)
 
-root = tk.Tk()
-root.title("Phishing Link Detection System")
-root.geometry("600x550")
+        tk.Label(
+            left,
+            text="• URL Analysis\n• Sender Analysis\n• Content Check\n• Attachment Scan",
+            fg="#cbd5e1",
+            bg="#0f172a",
+            font=("Segoe UI", 11),
+            justify="left"
+        ).pack(pady=10)
 
-tk.Label(root, text="URL").pack()
-url_entry = tk.Entry(root, width=70)
-url_entry.pack()
+        tk.Label(
+            left,
+            text="Final Yea\nv1.0",
+            fg="#94a3b8",
+            bg="#0f172a",
+            font=("Segoe UI", 10)
+        ).pack(side="bottom", pady=20)
 
-tk.Label(root, text="Sender Email").pack()
-sender_entry = tk.Entry(root, width=70)
-sender_entry.pack()
+#RIGHT PANEL
+        right = tk.Frame(root, bg="#f4f6f9")
+        right.pack(side="right", fill="both", expand=True)
 
-tk.Label(root, text="Email Message").pack()
-message_text = tk.Text(root, height=5, width=70)
-message_text.pack()
+        tk.Label(
+            right,
+            text="Phishing Link Detection System",
+            font=("Segoe UI", 22, "bold"),
+            bg="#f4f6f9"
+        ).pack(pady=20)
 
-tk.Label(root, text="Attachment Filename").pack()
-attachment_entry = tk.Entry(root, width=70)
-attachment_entry.pack()
+#INPUT CARD
+        card = tk.Frame(
+            right, bg="white", bd=1, relief="solid"
+        )
+        card.pack(padx=30, pady=10, fill="x")
 
-tk.Button(root, text="Scan Email", command=scan, bg="red", fg="white").pack(pady=10)
+        self.url = self.input_row(card, "URL")
+        self.sender = self.input_row(card, "Sender Email")
+        self.content = self.input_row(card, "Email Content", multiline=True)
+        self.attachment = self.input_row(card, "Attachment Filename")
 
-output = tk.Text(root, height=10, width=70)
-output.pack()
+        ttk.Button(
+            right,
+            text="🔍 Scan Email",
+            command=self.scan,
+            width=30
+        ).pack(pady=15)
 
-root.mainloop()
+#RESULT CARD
+        result_card = tk.Frame(
+            right, bg="white", bd=1, relief="solid"
+        )
+        result_card.pack(padx=30, pady=10, fill="both", expand=True)
+
+        self.result_label = tk.Label(
+            result_card,
+            text="RESULT",
+            font=("Segoe UI", 16, "bold"),
+            bg="white"
+        )
+        self.result_label.pack(anchor="w", padx=15, pady=5)
+
+        self.result_box = tk.Text(
+            result_card,
+            height=10,
+            font=("Consolas", 11),
+            bg="#f8fafc",
+            bd=0
+        )
+        self.result_box.pack(padx=15, pady=5, fill="both", expand=True)
+
+    def input_row(self, parent, label, multiline=False):
+        frame = tk.Frame(parent, bg="white")
+        frame.pack(fill="x", padx=20, pady=8)
+
+        tk.Label(
+            frame,
+            text=label,
+            width=18,
+            anchor="w",
+            bg="white",
+            font=("Segoe UI", 11)
+        ).pack(side="left")
+
+        if multiline:
+            widget = tk.Text(
+                frame, height=4, width=60,
+                bg="#f8fafc", relief="solid", bd=1
+            )
+        else:
+            widget = tk.Entry(
+                frame, width=62,
+                bg="#f8fafc", relief="solid", bd=1
+            )
+
+        widget.pack(side="left")
+        return widget
+
+    def scan(self):
+        url = self.url.get()
+        sender = self.sender.get()
+        content = self.content.get("1.0", tk.END)
+        attachment = self.attachment.get()
+
+        if not url or not sender:
+            messagebox.showerror("Error", "URL and Sender Email are required")
+            return
+
+        result, score, reasons = scan_phishing(
+            url, sender, content, attachment
+        )
+
+        self.result_box.delete("1.0", tk.END)
+
+        color = "green" if result == "SAFE" else "red"
+
+        self.result_box.insert(
+            tk.END,
+            f"STATUS : {result}\n",
+        )
+        self.result_box.tag_add("status", "1.0", "1.end")
+        self.result_box.tag_config("status", foreground=color, font=("Consolas", 12, "bold"))
+
+        self.result_box.insert(
+            tk.END,
+            f"Score  : {score}\n\nReasons:\n"
+        )
+
+        for r in reasons:
+            self.result_box.insert(tk.END, f"• {r}\n")
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = PhishingGUI(root)
+    root.mainloop()
